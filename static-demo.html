@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Binance Asset Console Static Demo</title>
+    <link rel="stylesheet" href="./src/styles.css" />
+    <style>
+      .staticNote {
+        margin: 0 clamp(18px, 5vw, 72px) 28px;
+        border: 1px solid #d9d9de;
+        border-radius: 8px;
+        padding: 14px 16px;
+        background: #fff;
+        color: #4c4c50;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="topbar">
+        <div><span class="brandDot"></span><strong>Binance Asset Console</strong></div>
+        <nav>
+          <a href="#dashboard">资产仪表盘</a>
+          <a href="#trade">批量交易</a>
+          <a href="#flow">Prototype</a>
+        </nav>
+        <div class="topActions">
+          <span class="source demo" id="source">demo</span>
+          <button class="iconButton" aria-label="Language">中</button>
+        </div>
+      </header>
+
+      <section class="hero" id="dashboard">
+        <div class="heroCopy">
+          <p class="eyebrow">BINANCE API READY / 2FA FIRST</p>
+          <h1>个人虚拟货币资产管理工作台</h1>
+          <p>用一屏完成资产洞察、目标配比、批量交易预案与风险提醒。真实账户交易通过后端签名服务接入，当前界面默认模拟执行。</p>
+          <div class="heroActions">
+            <a class="primary" href="#allocation">快速配比</a>
+            <a class="secondary" href="#trade">批量下单</a>
+          </div>
+        </div>
+        <div class="heroVisual">
+          <canvas class="pointCloud" id="cloud"></canvas>
+          <div class="floatingMetric">
+            <span>总资产估值</span>
+            <strong id="totalMetric">$182,430</strong>
+          </div>
+        </div>
+      </section>
+
+      <p class="staticNote">静态演示版：可直接打开浏览；React/Vite 源码位于 src/，安装依赖后可运行开发服务器。</p>
+
+      <section class="metrics">
+        <article><span>总资产估值</span><strong>$182,430</strong><small>Spot + Futures margin preview</small></article>
+        <article><span>今日收益</span><strong class="up">+$8,924</strong><small>基于平均成本估算</small></article>
+        <article><span>风险偏好</span><strong>balanced</strong><small>影响智能配比建议</small></article>
+        <article><span>2FA / API Key</span><strong>Vault Ready</strong><small>仅后端保存密钥</small></article>
+      </section>
+
+      <section class="dashboardGrid">
+        <article class="panel allocationPanel">
+          <div class="panelTitle">
+            <div><span>资产仪表盘</span><h2>持仓比例</h2></div>
+            <button>一键再平衡</button>
+          </div>
+          <div class="allocationVisual">
+            <svg class="pie" viewBox="0 0 100 100" role="img" aria-label="Asset allocation">
+              <path d="M50 50 L50 10 A40 40 0 0 1 77 79 Z" fill="#111111"></path>
+              <path d="M50 50 L77 79 A40 40 0 0 1 17 68 Z" fill="#2f6bff"></path>
+              <path d="M50 50 L17 68 A40 40 0 0 1 13 35 Z" fill="#f0b90b"></path>
+              <path d="M50 50 L13 35 A40 40 0 0 1 36 12 Z" fill="#12c2a3"></path>
+              <path d="M50 50 L36 12 A40 40 0 0 1 45 10 Z" fill="#7b61ff"></path>
+              <path d="M50 50 L45 10 A40 40 0 0 1 50 10 Z" fill="#ff5c7a"></path>
+              <circle cx="50" cy="50" r="24" fill="var(--panel)"></circle>
+            </svg>
+            <div class="legend">
+              <div><span style="background:#111111"></span><strong>BTC</strong><em>41.2%</em></div>
+              <div><span style="background:#2f6bff"></span><strong>ETH</strong><em>24.8%</em></div>
+              <div><span style="background:#f0b90b"></span><strong>BNB</strong><em>15.1%</em></div>
+              <div><span style="background:#12c2a3"></span><strong>SOL</strong><em>11.0%</em></div>
+              <div><span style="background:#7b61ff"></span><strong>XRP</strong><em>4.7%</em></div>
+              <div><span style="background:#ff5c7a"></span><strong>ADA</strong><em>3.2%</em></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panelTitle"><div><span>实时行情</span><h2>价值分布</h2></div></div>
+          <div class="bars">
+            <div class="barItem"><span>BTC</span><div class="barTrack"><div class="barFill" style="width:100%;background:#111111"></div></div><strong>$75,240</strong></div>
+            <div class="barItem"><span>ETH</span><div class="barTrack"><div class="barFill" style="width:61%;background:#2f6bff"></div></div><strong>$45,890</strong></div>
+            <div class="barItem"><span>BNB</span><div class="barTrack"><div class="barFill" style="width:37%;background:#f0b90b"></div></div><strong>$27,540</strong></div>
+            <div class="barItem"><span>SOL</span><div class="barTrack"><div class="barFill" style="width:27%;background:#12c2a3"></div></div><strong>$20,120</strong></div>
+            <div class="barItem"><span>XRP</span><div class="barTrack"><div class="barFill" style="width:12%;background:#7b61ff"></div></div><strong>$8,612</strong></div>
+            <div class="barItem"><span>ADA</span><div class="barTrack"><div class="barFill" style="width:8%;background:#ff5c7a"></div></div><strong>$5,028</strong></div>
+          </div>
+        </article>
+
+        <article class="panel wide">
+          <div class="panelTitle"><div><span>PNL TREND</span><h2>收益波动</h2></div><strong class="up">+7.3%</strong></div>
+          <svg class="lineChart" viewBox="0 0 100 80" preserveAspectRatio="none">
+            <defs><linearGradient id="lineGlow" x1="0" x2="1"><stop stop-color="#2f6bff"></stop><stop offset="1" stop-color="#12c2a3"></stop></linearGradient></defs>
+            <path d="M 0 70 L 9 52 L 18 58 L 27 41 L 36 47 L 45 29 L 54 35 L 63 20 L 72 25 L 81 13 L 90 18 L 99 8 L 99 80 L 0 80 Z" fill="url(#lineGlow)" opacity="0.12"></path>
+            <path d="M 0 70 L 9 52 L 18 58 L 27 41 L 36 47 L 45 29 L 54 35 L 63 20 L 72 25 L 81 13 L 90 18 L 99 8" fill="none" stroke="url(#lineGlow)" stroke-width="2.5" stroke-linecap="round"></path>
+          </svg>
+        </article>
+      </section>
+
+      <section class="workbench">
+        <article class="panel" id="allocation">
+          <div class="panelTitle">
+            <div><span>配比调整</span><h2>拖拽式权重预案</h2></div>
+            <div class="segmented"><button>conservative</button><button class="active">balanced</button><button>growth</button></div>
+          </div>
+          <div class="sliders">
+            <label><span><b>BTC</b><em>38%</em></span><input type="range" min="0" max="60" value="38" style="accent-color:#111111"></label>
+            <label><span><b>ETH</b><em>28%</em></span><input type="range" min="0" max="60" value="28" style="accent-color:#2f6bff"></label>
+            <label><span><b>BNB</b><em>13%</em></span><input type="range" min="0" max="60" value="13" style="accent-color:#f0b90b"></label>
+            <label><span><b>SOL</b><em>11%</em></span><input type="range" min="0" max="60" value="11" style="accent-color:#12c2a3"></label>
+            <label><span><b>XRP</b><em>6%</em></span><input type="range" min="0" max="60" value="6" style="accent-color:#7b61ff"></label>
+            <label><span><b>ADA</b><em>4%</em></span><input type="range" min="0" max="60" value="4" style="accent-color:#ff5c7a"></label>
+          </div>
+        </article>
+
+        <article class="panel tradePanel" id="trade">
+          <div class="panelTitle"><div><span>批量交易</span><h2>多币种杠杆交易</h2></div><span class="pill">模拟执行</span></div>
+          <div class="coinGrid">
+            <button class="selected"><span style="background:#111"></span>BTC</button>
+            <button class="selected"><span style="background:#2f6bff"></span>ETH</button>
+            <button><span style="background:#f0b90b"></span>BNB</button>
+            <button class="selected"><span style="background:#12c2a3"></span>SOL</button>
+            <button><span style="background:#7b61ff"></span>XRP</button>
+            <button><span style="background:#ff5c7a"></span>ADA</button>
+          </div>
+          <div class="formGrid">
+            <label>方向<select><option>LONG</option><option>SHORT</option></select></label>
+            <label>杠杆<input type="number" min="1" max="20" value="3"></label>
+            <label>止盈<input value="8%"></label>
+            <label>止损<input value="3%"></label>
+          </div>
+          <button class="primary full">批量下单</button>
+        </article>
+      </section>
+
+      <section class="orders">
+        <article class="panel">
+          <div class="panelTitle"><div><span>订单管理</span><h2>实时委托状态</h2></div><button>一键撤销</button></div>
+          <div class="table">
+            <div class="tr"><span>SIM-2C8A-1</span><strong>BTC LONG</strong><span>3x</span><span>$69,323</span><em>追踪中</em></div>
+            <div class="tr"><span>SIM-2C8A-2</span><strong>ETH LONG</strong><span>3x</span><span>$51,080</span><em>待确认</em></div>
+            <div class="tr"><span>SIM-2C8A-3</span><strong>SOL LONG</strong><span>3x</span><span>$20,068</span><em>待确认</em></div>
+          </div>
+        </article>
+        <article class="panel">
+          <div class="panelTitle"><div><span>智能建议</span><h2>策略与预警</h2></div></div>
+          <div class="insight">
+            <p>当前组合 BTC/ETH 权重稳定，SOL 波动贡献较高。若风险偏好为 balanced，建议将 SOL 目标权重控制在 12% 内，并为 BTC 设置突破提醒。</p>
+            <label>BTC 价格阈值<input value="110000"></label>
+            <div class="securityList"><span>2FA 登录</span><span>API 密钥托管</span><span>TLS 传输</span><span>只读/交易权限分离</span></div>
+          </div>
+        </article>
+      </section>
+
+      <section class="wireframes" id="flow">
+        <article class="wireCard"><div class="wireTop"></div><div class="wireBody"><div></div><div></div><div></div></div><h3>资产仪表盘</h3><p>总览卡片 / 持仓饼图 / 收益折线 / 快捷入口</p></article>
+        <article class="wireCard"><div class="wireTop"></div><div class="wireBody"><div></div><div></div><div></div></div><h3>配比调整</h3><p>目标权重滑杆 / 拖拽排序 / 一键再平衡预览</p></article>
+        <article class="wireCard"><div class="wireTop"></div><div class="wireBody"><div></div><div></div><div></div></div><h3>批量交易</h3><p>多币种选择 / 做多做空 / 杠杆 / 止盈止损</p></article>
+        <article class="wireCard"><div class="wireTop"></div><div class="wireBody"><div></div><div></div><div></div></div><h3>订单管理</h3><p>委托追踪 / 历史记录 / 撤销修改</p></article>
+      </section>
+    </main>
+
+    <script>
+      const canvas = document.getElementById('cloud');
+      const ctx = canvas.getContext('2d');
+      const colors = ['#111111', '#2f6bff', '#f0b90b', '#12c2a3', '#7b61ff', '#ff5c7a'];
+      const weights = [41, 25, 15, 11, 5, 3];
+      const points = colors.flatMap((color, assetIndex) => Array.from({ length: 18 }, (_, index) => ({
+        color,
+        assetIndex,
+        index,
+        radius: 25 + weights[assetIndex] * 1.05 + (index % 5) * 7,
+        speed: 0.006 + assetIndex * 0.0015,
+      })));
+      function size() {
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+      let frame = 0;
+      function draw() {
+        const rect = canvas.getBoundingClientRect();
+        frame += 1;
+        ctx.clearRect(0, 0, rect.width, rect.height);
+        const cx = rect.width / 2;
+        const cy = rect.height / 2;
+        for (const p of points) {
+          const angle = frame * p.speed + p.index * 0.73 + p.assetIndex;
+          const x = cx + Math.cos(angle) * p.radius + Math.sin(frame * 0.01 + p.index) * 8;
+          const y = cy + Math.sin(angle * 1.23) * p.radius * 0.58;
+          ctx.beginPath();
+          ctx.fillStyle = p.color;
+          ctx.globalAlpha = 0.28;
+          ctx.arc(x, y, 2.4 + (p.index % 3), 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+        requestAnimationFrame(draw);
+      }
+      window.addEventListener('resize', size);
+      size();
+      draw();
+    </script>
+  </body>
+</html>
