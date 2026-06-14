@@ -1,41 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-const translations = {
-  zh: {
-    dashboard: '资产仪表盘',
-    allocation: '配比调整',
-    trading: '批量交易',
-    orders: '订单管理',
-    alerts: '预警与安全',
-    total: '总资产估值',
-    pnl: '今日收益',
-    risk: '风险偏好',
-    quick: '快速配比',
-    rebalance: '一键再平衡',
-    batch: '批量下单',
-    simulated: '模拟执行',
-    market: '实时行情',
-    suggestion: '智能建议',
-  },
-  en: {
-    dashboard: 'Dashboard',
-    allocation: 'Allocation',
-    trading: 'Batch Trading',
-    orders: 'Orders',
-    alerts: 'Alerts & Security',
-    total: 'Total Equity',
-    pnl: 'Daily PnL',
-    risk: 'Risk Profile',
-    quick: 'Quick Mix',
-    rebalance: 'Rebalance',
-    batch: 'Batch Order',
-    simulated: 'Simulated',
-    market: 'Live Market',
-    suggestion: 'Smart Insight',
-  },
-};
-
-const starterAssets = [
+const ASSETS = [
   { symbol: 'BTC', pair: 'BTCUSDT', color: '#111111', amount: 0.72, target: 38, avgCost: 65400 },
   { symbol: 'ETH', pair: 'ETHUSDT', color: '#2f6bff', amount: 7.8, target: 28, avgCost: 3360 },
   { symbol: 'BNB', pair: 'BNBUSDT', color: '#f0b90b', amount: 41, target: 13, avgCost: 610 },
@@ -44,7 +9,7 @@ const starterAssets = [
   { symbol: 'ADA', pair: 'ADAUSDT', color: '#ff5c7a', amount: 14500, target: 4, avgCost: 0.43 },
 ];
 
-const fallbackPrices = {
+const FALLBACK_PRICES = {
   BTCUSDT: { price: 104250, change: 1.9 },
   ETHUSDT: { price: 3575, change: -0.6 },
   BNBUSDT: { price: 692, change: 0.8 },
@@ -53,51 +18,160 @@ const fallbackPrices = {
   ADAUSDT: { price: 0.49, change: 2.1 },
 };
 
-const trendSeed = [0.99, 1.01, 1.004, 1.025, 1.018, 1.038, 1.029, 1.047, 1.041, 1.061, 1.056, 1.073];
+const TEXT = {
+  zh: {
+    navPrices: '实时价格',
+    navAllocation: '目标配比',
+    navTrade: '模拟交易',
+    headline: '先看价格，再调配比，最后确认交易',
+    subtitle: '基于 Binance 公共行情刷新价格。账户余额、私有订单和真实下单必须通过后端签名服务接入，当前界面只做模拟预览。',
+    total: '总资产估值',
+    pnl: '浮动收益',
+    dataSource: '数据源',
+    refreshed: '刷新时间',
+    refresh: '手动刷新',
+    demo: '示例数据',
+    binance: 'Binance 公共行情',
+    priceBoard: '实时价格看板',
+    priceBoardDesc: '最新价、24h 涨跌和持仓价值集中展示。',
+    allocation: '目标配比',
+    allocationDesc: '每个币种卡片直接调整目标权重，差额即时反馈。',
+    distribution: '资产分布',
+    trend: '收益趋势',
+    quickActions: '快捷动作',
+    rebalance: '恢复均衡配置',
+    selectCore: '选择核心币',
+    generate: '生成模拟订单',
+    trade: '模拟批量交易',
+    step1: '1. 选择币种',
+    step2: '2. 设置参数',
+    step3: '3. 预览订单',
+    direction: '方向',
+    leverage: '杠杆',
+    takeProfit: '止盈',
+    stopLoss: '止损',
+    alert: '价格预警',
+    orderPreview: '订单预览',
+    simulated: '模拟执行',
+    currentWeight: '当前',
+    targetWeight: '目标',
+    gap: '差额',
+    value: '持仓价值',
+    amount: '持仓数量',
+    note: '安全说明',
+    noteBody: '真实交易需要后端 API 签名、2FA、风控校验和密钥托管。浏览器端不保存 API Key。',
+  },
+  en: {
+    navPrices: 'Live Prices',
+    navAllocation: 'Allocation',
+    navTrade: 'Sim Trade',
+    headline: 'Check prices, tune allocation, confirm trades',
+    subtitle: 'Prices refresh from Binance public market data. Balances, private orders, and real execution must go through a signed backend service. This UI only previews simulated orders.',
+    total: 'Total Equity',
+    pnl: 'Unrealized PnL',
+    dataSource: 'Data Source',
+    refreshed: 'Updated',
+    refresh: 'Refresh',
+    demo: 'Demo Data',
+    binance: 'Binance Public',
+    priceBoard: 'Live Price Board',
+    priceBoardDesc: 'Latest price, 24h move, and holding value in one place.',
+    allocation: 'Target Allocation',
+    allocationDesc: 'Adjust every target weight directly and see the gap instantly.',
+    distribution: 'Distribution',
+    trend: 'PnL Trend',
+    quickActions: 'Quick Actions',
+    rebalance: 'Reset Balanced Mix',
+    selectCore: 'Select Core Coins',
+    generate: 'Generate Sim Orders',
+    trade: 'Sim Batch Trading',
+    step1: '1. Select Coins',
+    step2: '2. Set Params',
+    step3: '3. Preview Orders',
+    direction: 'Direction',
+    leverage: 'Leverage',
+    takeProfit: 'Take Profit',
+    stopLoss: 'Stop Loss',
+    alert: 'Price Alert',
+    orderPreview: 'Order Preview',
+    simulated: 'Simulated',
+    currentWeight: 'Current',
+    targetWeight: 'Target',
+    gap: 'Gap',
+    value: 'Value',
+    amount: 'Amount',
+    note: 'Security Note',
+    noteBody: 'Real trading requires backend API signing, 2FA, risk checks, and key vaulting. API keys must not be stored in the browser.',
+  },
+};
 
-function money(value) {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value);
+const PRESETS = {
+  balanced: { BTC: 38, ETH: 28, BNB: 13, SOL: 11, XRP: 6, ADA: 4 },
+  core: { BTC: 50, ETH: 30, BNB: 10, SOL: 5, XRP: 3, ADA: 2 },
+};
+
+function money(value, digits = 0) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: digits,
+  }).format(value);
 }
 
-function number(value, digits = 2) {
+function numeric(value, digits = 2) {
   return new Intl.NumberFormat('en-US', { maximumFractionDigits: digits }).format(value);
 }
 
-function useMarketData() {
-  const [prices, setPrices] = useState(fallbackPrices);
-  const [source, setSource] = useState('demo');
+function timeLabel(date, lang) {
+  if (!date) return lang === 'zh' ? '未刷新' : 'Not refreshed';
+  return new Intl.DateTimeFormat(lang === 'zh' ? 'zh-CN' : 'en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  }).format(date);
+}
 
-  useEffect(() => {
-    let alive = true;
-    async function load() {
-      try {
-        const symbols = starterAssets.map((asset) => `"${asset.pair}"`).join(',');
-        const res = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbols=[${symbols}]`);
-        if (!res.ok) throw new Error('market unavailable');
-        const data = await res.json();
-        if (!alive) return;
-        const next = {};
-        for (const row of data) {
-          next[row.symbol] = {
-            price: Number(row.lastPrice),
-            change: Number(row.priceChangePercent),
-          };
-        }
-        setPrices((current) => ({ ...current, ...next }));
-        setSource('binance-public');
-      } catch {
-        setSource('demo');
+function useMarketData() {
+  const [prices, setPrices] = useState(FALLBACK_PRICES);
+  const [source, setSource] = useState('demo');
+  const [updatedAt, setUpdatedAt] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    try {
+      const symbols = encodeURIComponent(JSON.stringify(ASSETS.map((asset) => asset.pair)));
+      const response = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbols=${symbols}`, { cache: 'no-store' });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      const next = {};
+      for (const item of data) {
+        next[item.symbol] = {
+          price: Number(item.lastPrice),
+          change: Number(item.priceChangePercent),
+        };
       }
+      setPrices((current) => ({ ...current, ...next }));
+      setSource('binance-public');
+      setUpdatedAt(new Date());
+      setError('');
+    } catch (err) {
+      setSource('demo');
+      setUpdatedAt(new Date());
+      setError(err instanceof Error ? err.message : 'market unavailable');
+    } finally {
+      setLoading(false);
     }
-    load();
-    const id = setInterval(load, 8000);
-    return () => {
-      alive = false;
-      clearInterval(id);
-    };
   }, []);
 
-  return { prices, source };
+  useEffect(() => {
+    refresh();
+    const id = window.setInterval(refresh, 8000);
+    return () => window.clearInterval(id);
+  }, [refresh]);
+
+  return { prices, source, updatedAt, loading, error, refresh };
 }
 
 function PieChart({ rows }) {
@@ -117,7 +191,7 @@ function PieChart({ rows }) {
   });
 
   return (
-    <svg className="pie" viewBox="0 0 100 100" role="img" aria-label="Asset allocation pie chart">
+    <svg className="pie" viewBox="0 0 100 100" role="img" aria-label="Asset allocation chart">
       {slices.map((path, index) => (
         <path key={rows[index].symbol} d={path} fill={rows[index].color} />
       ))}
@@ -126,36 +200,22 @@ function PieChart({ rows }) {
   );
 }
 
-function Bars({ rows }) {
-  const max = Math.max(...rows.map((row) => row.value));
-  return (
-    <div className="bars">
-      {rows.map((row) => (
-        <div className="barItem" key={row.symbol}>
-          <span>{row.symbol}</span>
-          <div className="barTrack">
-            <div className="barFill" style={{ width: `${(row.value / max) * 100}%`, background: row.color }} />
-          </div>
-          <strong>{money(row.value)}</strong>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function LineChart({ total }) {
-  const points = trendSeed.map((factor, index) => [index * 9, 70 - ((total * factor) / total - 0.98) * 900]);
+function Sparkline({ rows }) {
+  const total = rows.reduce((sum, row) => sum + row.value, 0);
+  const seed = [0.986, 1.004, 0.998, 1.017, 1.012, 1.031, 1.026, 1.043, 1.038, 1.057, 1.052, 1.068];
+  const points = seed.map((factor, index) => [index * 9, 70 - ((total * factor) / total - 0.98) * 860]);
   const d = points.map((point, index) => `${index ? 'L' : 'M'} ${point[0]} ${point[1]}`).join(' ');
+
   return (
     <svg className="lineChart" viewBox="0 0 100 80" preserveAspectRatio="none">
       <defs>
-        <linearGradient id="lineGlow" x1="0" x2="1">
-          <stop stopColor="#2f6bff" />
+        <linearGradient id="trendGlow" x1="0" x2="1">
+          <stop stopColor="#0071e3" />
           <stop offset="1" stopColor="#12c2a3" />
         </linearGradient>
       </defs>
-      <path d={`${d} L 99 80 L 0 80 Z`} fill="url(#lineGlow)" opacity="0.12" />
-      <path d={d} fill="none" stroke="url(#lineGlow)" strokeWidth="2.5" strokeLinecap="round" />
+      <path d={`${d} L 99 80 L 0 80 Z`} fill="url(#trendGlow)" opacity="0.12" />
+      <path d={d} fill="none" stroke="url(#trendGlow)" strokeWidth="2.4" strokeLinecap="round" />
     </svg>
   );
 }
@@ -166,151 +226,146 @@ function PointCloud({ rows }) {
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
-    const DPR = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * DPR;
-    canvas.height = rect.height * DPR;
-    ctx.scale(DPR, DPR);
     let frame = 0;
-    let raf;
+    let raf = 0;
+
+    function resize() {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
     const points = rows.flatMap((row, assetIndex) =>
-      Array.from({ length: 18 }, (_, index) => ({
+      Array.from({ length: 16 }, (_, index) => ({
         assetIndex,
         index,
-        radius: 22 + row.weight * 1.15 + (index % 5) * 7,
-        speed: 0.006 + assetIndex * 0.0015,
+        radius: 24 + row.weight * 1.05 + (index % 4) * 8,
+        speed: 0.006 + assetIndex * 0.0014,
         color: row.color,
       })),
     );
+
     function draw() {
+      const rect = canvas.getBoundingClientRect();
       frame += 1;
       ctx.clearRect(0, 0, rect.width, rect.height);
       const cx = rect.width / 2;
       const cy = rect.height / 2;
-      for (const p of points) {
-        const angle = frame * p.speed + p.index * 0.73 + p.assetIndex;
-        const x = cx + Math.cos(angle) * p.radius + Math.sin(frame * 0.01 + p.index) * 8;
-        const y = cy + Math.sin(angle * 1.23) * p.radius * 0.58;
+      for (const point of points) {
+        const angle = frame * point.speed + point.index * 0.78 + point.assetIndex;
+        const x = cx + Math.cos(angle) * point.radius + Math.sin(frame * 0.011 + point.index) * 8;
+        const y = cy + Math.sin(angle * 1.18) * point.radius * 0.58;
         ctx.beginPath();
-        ctx.fillStyle = p.color;
+        ctx.fillStyle = point.color;
         ctx.globalAlpha = 0.28;
-        ctx.arc(x, y, 2.4 + (p.index % 3), 0, Math.PI * 2);
+        ctx.arc(x, y, 2.3 + (point.index % 3), 0, Math.PI * 2);
         ctx.fill();
       }
       ctx.globalAlpha = 1;
-      raf = requestAnimationFrame(draw);
+      raf = window.requestAnimationFrame(draw);
     }
+
+    resize();
     draw();
-    return () => cancelAnimationFrame(raf);
+    window.addEventListener('resize', resize);
+    return () => {
+      window.cancelAnimationFrame(raf);
+      window.removeEventListener('resize', resize);
+    };
   }, [rows]);
 
   return <canvas className="pointCloud" ref={canvasRef} aria-label="Animated asset point cloud" />;
 }
 
-function Wireframes({ t }) {
-  return (
-    <section className="wireframes" id="flow">
-      {[
-        [t.dashboard, '总览卡片 / 持仓饼图 / 收益折线 / 快捷入口'],
-        [t.allocation, '目标权重滑杆 / 拖拽排序 / 一键再平衡预览'],
-        [t.trading, '多币种选择 / 做多做空 / 杠杆 / 止盈止损'],
-        [t.orders, '委托追踪 / 历史记录 / 撤销修改'],
-      ].map(([title, text]) => (
-        <article className="wireCard" key={title}>
-          <div className="wireTop" />
-          <div className="wireBody">
-            <div />
-            <div />
-            <div />
-          </div>
-          <h3>{title}</h3>
-          <p>{text}</p>
-        </article>
-      ))}
-    </section>
-  );
-}
-
 function App() {
   const [lang, setLang] = useState('zh');
-  const [risk, setRisk] = useState('balanced');
-  const [assets, setAssets] = useState(starterAssets);
+  const [assets, setAssets] = useState(ASSETS);
   const [selected, setSelected] = useState(['BTC', 'ETH', 'SOL']);
   const [side, setSide] = useState('LONG');
   const [leverage, setLeverage] = useState(3);
+  const [takeProfit, setTakeProfit] = useState('8');
+  const [stopLoss, setStopLoss] = useState('3');
   const [alertPrice, setAlertPrice] = useState('110000');
-  const { prices, source } = useMarketData();
-  const t = translations[lang];
+  const market = useMarketData();
+  const t = TEXT[lang];
 
   const rows = useMemo(() => {
-    const values = assets.map((asset) => ({
-      ...asset,
-      price: prices[asset.pair]?.price || fallbackPrices[asset.pair].price,
-      change: prices[asset.pair]?.change || fallbackPrices[asset.pair].change,
-    })).map((asset) => ({
-      ...asset,
-      value: asset.amount * asset.price,
-      pnl: (asset.price - asset.avgCost) * asset.amount,
-    }));
+    const values = assets.map((asset) => {
+      const marketPrice = market.prices[asset.pair] || FALLBACK_PRICES[asset.pair];
+      const price = marketPrice.price;
+      return {
+        ...asset,
+        price,
+        change: marketPrice.change,
+        value: asset.amount * price,
+        pnl: (price - asset.avgCost) * asset.amount,
+      };
+    });
     const total = values.reduce((sum, asset) => sum + asset.value, 0);
-    return values.map((asset) => ({ ...asset, weight: (asset.value / total) * 100 }));
-  }, [assets, prices]);
+    return values.map((asset) => ({ ...asset, weight: total ? (asset.value / total) * 100 : 0 }));
+  }, [assets, market.prices]);
 
   const total = rows.reduce((sum, row) => sum + row.value, 0);
   const pnl = rows.reduce((sum, row) => sum + row.pnl, 0);
-  const targetTotal = assets.reduce((sum, asset) => sum + asset.target, 0) || 1;
-  const targetRows = assets.map((asset) => ({ ...asset, target: (asset.target / targetTotal) * 100 }));
-  const orders = selected.map((symbol, index) => ({
-    id: `SIM-${Math.floor(total).toString(16).toUpperCase()}-${index + 1}`,
-    symbol,
-    side,
-    leverage,
-    size: money((total * (assets.find((asset) => asset.symbol === symbol)?.target || 5)) / 100),
-    status: index === 0 ? '追踪中' : '待确认',
-  }));
+  const normalizedTargetTotal = assets.reduce((sum, asset) => sum + asset.target, 0) || 1;
 
   function setTarget(symbol, target) {
     setAssets((current) => current.map((asset) => (asset.symbol === symbol ? { ...asset, target } : asset)));
   }
 
-  function applyPreset(type) {
-    const presets = {
-      conservative: { BTC: 48, ETH: 26, BNB: 12, SOL: 6, XRP: 5, ADA: 3 },
-      balanced: { BTC: 38, ETH: 28, BNB: 13, SOL: 11, XRP: 6, ADA: 4 },
-      growth: { BTC: 28, ETH: 25, BNB: 10, SOL: 22, XRP: 8, ADA: 7 },
-    };
-    setRisk(type);
-    setAssets((current) => current.map((asset) => ({ ...asset, target: presets[type][asset.symbol] })));
+  function applyPreset(preset) {
+    setAssets((current) => current.map((asset) => ({ ...asset, target: PRESETS[preset][asset.symbol] })));
   }
+
+  function toggleCoin(symbol) {
+    setSelected((current) => (current.includes(symbol) ? current.filter((item) => item !== symbol) : [...current, symbol]));
+  }
+
+  const orderPreview = selected.map((symbol, index) => {
+    const asset = rows.find((row) => row.symbol === symbol);
+    const target = assets.find((item) => item.symbol === symbol)?.target || 0;
+    return {
+      id: `SIM-${index + 1}`,
+      symbol,
+      side,
+      leverage,
+      notional: total * (target / normalizedTargetTotal),
+      price: asset?.price || 0,
+    };
+  });
 
   return (
     <main>
       <header className="topbar">
-        <div>
+        <div className="brand">
           <span className="brandDot" />
           <strong>Binance Asset Console</strong>
         </div>
         <nav>
-          <a href="#dashboard">{t.dashboard}</a>
-          <a href="#trade">{t.trading}</a>
-          <a href="#flow">Prototype</a>
+          <a href="#prices">{t.navPrices}</a>
+          <a href="#allocation">{t.navAllocation}</a>
+          <a href="#trade">{t.navTrade}</a>
         </nav>
         <div className="topActions">
-          <span className={`source ${source === 'demo' ? 'demo' : ''}`}>{source}</span>
+          <span className={`source ${market.source === 'demo' ? 'demo' : ''}`}>
+            {market.source === 'demo' ? t.demo : t.binance}
+          </span>
           <button className="iconButton" onClick={() => setLang(lang === 'zh' ? 'en' : 'zh')} aria-label="Toggle language">
             {lang === 'zh' ? 'EN' : '中'}
           </button>
         </div>
       </header>
 
-      <section className="hero" id="dashboard">
+      <section className="hero">
         <div className="heroCopy">
-          <p className="eyebrow">BINANCE API READY / 2FA FIRST</p>
-          <h1>个人虚拟货币资产管理工作台</h1>
-          <p>用一屏完成资产洞察、目标配比、批量交易预案与风险提醒。真实账户交易通过后端签名服务接入，当前界面默认模拟执行。</p>
+          <p className="eyebrow">PUBLIC MARKET DATA / SIMULATED EXECUTION</p>
+          <h1>{t.headline}</h1>
+          <p>{t.subtitle}</p>
           <div className="heroActions">
-            <a className="primary" href="#allocation">{t.quick}</a>
-            <a className="secondary" href="#trade">{t.batch}</a>
+            <a className="primary" href="#prices">{t.navPrices}</a>
+            <a className="secondary" href="#trade">{t.generate}</a>
           </div>
         </div>
         <div className="heroVisual">
@@ -326,33 +381,59 @@ function App() {
         <article>
           <span>{t.total}</span>
           <strong>{money(total)}</strong>
-          <small>Spot + Futures margin preview</small>
+          <small>BTC / ETH / BNB / SOL / XRP / ADA</small>
         </article>
         <article>
           <span>{t.pnl}</span>
           <strong className={pnl >= 0 ? 'up' : 'down'}>{pnl >= 0 ? '+' : ''}{money(pnl)}</strong>
-          <small>基于平均成本估算</small>
+          <small>{t.value}</small>
         </article>
         <article>
-          <span>{t.risk}</span>
-          <strong>{risk}</strong>
-          <small>影响智能配比建议</small>
+          <span>{t.dataSource}</span>
+          <strong>{market.source === 'demo' ? t.demo : t.binance}</strong>
+          <small>{market.error || 'REST ticker / 8s'}</small>
         </article>
         <article>
-          <span>2FA / API Key</span>
-          <strong>Vault Ready</strong>
-          <small>仅后端保存密钥</small>
+          <span>{t.refreshed}</span>
+          <strong>{timeLabel(market.updatedAt, lang)}</strong>
+          <button className="miniButton" onClick={market.refresh} disabled={market.loading}>
+            {market.loading ? '...' : t.refresh}
+          </button>
         </article>
       </section>
 
+      <section className="priceSection panel" id="prices">
+        <div className="panelTitle">
+          <div>
+            <span>{t.navPrices}</span>
+            <h2>{t.priceBoard}</h2>
+            <p>{t.priceBoardDesc}</p>
+          </div>
+          <button onClick={market.refresh} disabled={market.loading}>{market.loading ? '...' : t.refresh}</button>
+        </div>
+        <div className="priceGrid">
+          {rows.map((row) => (
+            <article className="priceCard" key={row.symbol}>
+              <div>
+                <span className="coinMark" style={{ background: row.color }} />
+                <strong>{row.symbol}</strong>
+                <small>{row.pair}</small>
+              </div>
+              <b>{money(row.price, row.price < 1 ? 4 : 2)}</b>
+              <em className={row.change >= 0 ? 'up' : 'down'}>{row.change >= 0 ? '+' : ''}{numeric(row.change)}%</em>
+              <span>{money(row.value)}</span>
+            </article>
+          ))}
+        </div>
+      </section>
+
       <section className="dashboardGrid">
-        <article className="panel allocationPanel">
+        <article className="panel">
           <div className="panelTitle">
             <div>
-              <span>{t.dashboard}</span>
-              <h2>持仓比例</h2>
+              <span>{t.distribution}</span>
+              <h2>{t.distribution}</h2>
             </div>
-            <button onClick={() => applyPreset('balanced')}>{t.rebalance}</button>
           </div>
           <div className="allocationVisual">
             <PieChart rows={rows} />
@@ -361,156 +442,121 @@ function App() {
                 <div key={row.symbol}>
                   <span style={{ background: row.color }} />
                   <strong>{row.symbol}</strong>
-                  <em>{number(row.weight)}%</em>
+                  <em>{numeric(row.weight)}%</em>
                 </div>
               ))}
             </div>
           </div>
         </article>
-
         <article className="panel">
           <div className="panelTitle">
             <div>
-              <span>{t.market}</span>
-              <h2>价值分布</h2>
+              <span>{t.trend}</span>
+              <h2>{t.trend}</h2>
             </div>
+            <strong className={pnl >= 0 ? 'up' : 'down'}>{pnl >= 0 ? '+' : ''}{money(pnl)}</strong>
           </div>
-          <Bars rows={rows} />
-        </article>
-
-        <article className="panel wide">
-          <div className="panelTitle">
-            <div>
-              <span>PNL TREND</span>
-              <h2>收益波动</h2>
-            </div>
-            <strong className="up">+7.3%</strong>
-          </div>
-          <LineChart total={total} />
+          <Sparkline rows={rows} />
         </article>
       </section>
 
-      <section className="workbench">
-        <article className="panel" id="allocation">
+      <section className="workbench" id="allocation">
+        <article className="panel allocationPanel">
           <div className="panelTitle">
             <div>
-              <span>{t.allocation}</span>
-              <h2>拖拽式权重预案</h2>
+              <span>{t.navAllocation}</span>
+              <h2>{t.allocation}</h2>
+              <p>{t.allocationDesc}</p>
             </div>
-            <div className="segmented">
-              {['conservative', 'balanced', 'growth'].map((item) => (
-                <button className={risk === item ? 'active' : ''} onClick={() => applyPreset(item)} key={item}>{item}</button>
+            <div className="actionCluster">
+              <button onClick={() => applyPreset('balanced')}>{t.rebalance}</button>
+              <button onClick={() => applyPreset('core')}>{t.selectCore}</button>
+            </div>
+          </div>
+          <div className="allocationCards">
+            {rows.map((row) => {
+              const asset = assets.find((item) => item.symbol === row.symbol);
+              const target = (asset.target / normalizedTargetTotal) * 100;
+              const gap = target - row.weight;
+              return (
+                <article className="allocationCard" key={row.symbol}>
+                  <div className="coinHeader">
+                    <span className="coinMark" style={{ background: row.color }} />
+                    <strong>{row.symbol}</strong>
+                    <em className={gap >= 0 ? 'up' : 'down'}>{t.gap} {gap >= 0 ? '+' : ''}{numeric(gap)}%</em>
+                  </div>
+                  <div className="weightLine">
+                    <span>{t.currentWeight} {numeric(row.weight)}%</span>
+                    <span>{t.targetWeight} {numeric(target)}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="60"
+                    value={asset.target}
+                    onChange={(event) => setTarget(row.symbol, Number(event.target.value))}
+                    style={{ accentColor: row.color }}
+                  />
+                  <small>{t.amount}: {numeric(row.amount, row.amount > 100 ? 0 : 4)} / {t.value}: {money(row.value)}</small>
+                </article>
+              );
+            })}
+          </div>
+        </article>
+      </section>
+
+      <section className="tradeSection panel" id="trade">
+        <div className="panelTitle">
+          <div>
+            <span>{t.navTrade}</span>
+            <h2>{t.trade}</h2>
+          </div>
+          <span className="pill">{t.simulated}</span>
+        </div>
+        <div className="tradeFlow">
+          <article>
+            <h3>{t.step1}</h3>
+            <div className="coinGrid">
+              {rows.map((row) => (
+                <button className={selected.includes(row.symbol) ? 'selected' : ''} onClick={() => toggleCoin(row.symbol)} key={row.symbol}>
+                  <span style={{ background: row.color }} />
+                  {row.symbol}
+                </button>
               ))}
             </div>
-          </div>
-          <div className="sliders">
-            {targetRows.map((asset) => (
-              <label key={asset.symbol}>
-                <span><b>{asset.symbol}</b><em>{number(asset.target)}%</em></span>
-                <input
-                  type="range"
-                  min="0"
-                  max="60"
-                  value={asset.target}
-                  onChange={(event) => setTarget(asset.symbol, Number(event.target.value))}
-                  style={{ accentColor: asset.color }}
-                />
-              </label>
-            ))}
-          </div>
-        </article>
-
-        <article className="panel tradePanel" id="trade">
-          <div className="panelTitle">
-            <div>
-              <span>{t.trading}</span>
-              <h2>多币种杠杆交易</h2>
+          </article>
+          <article>
+            <h3>{t.step2}</h3>
+            <div className="formGrid">
+              <label>{t.direction}<select value={side} onChange={(event) => setSide(event.target.value)}><option>LONG</option><option>SHORT</option></select></label>
+              <label>{t.leverage}<input type="number" min="1" max="20" value={leverage} onChange={(event) => setLeverage(Number(event.target.value))} /></label>
+              <label>{t.takeProfit}<input value={takeProfit} onChange={(event) => setTakeProfit(event.target.value)} /></label>
+              <label>{t.stopLoss}<input value={stopLoss} onChange={(event) => setStopLoss(event.target.value)} /></label>
+              <label>{t.alert}<input value={alertPrice} onChange={(event) => setAlertPrice(event.target.value)} /></label>
             </div>
-            <span className="pill">{t.simulated}</span>
-          </div>
-          <div className="coinGrid">
-            {assets.map((asset) => (
-              <button
-                className={selected.includes(asset.symbol) ? 'selected' : ''}
-                onClick={() => setSelected((current) => current.includes(asset.symbol) ? current.filter((item) => item !== asset.symbol) : [...current, asset.symbol])}
-                key={asset.symbol}
-              >
-                <span style={{ background: asset.color }} />
-                {asset.symbol}
-              </button>
-            ))}
-          </div>
-          <div className="formGrid">
-            <label>
-              方向
-              <select value={side} onChange={(event) => setSide(event.target.value)}>
-                <option>LONG</option>
-                <option>SHORT</option>
-              </select>
-            </label>
-            <label>
-              杠杆
-              <input type="number" min="1" max="20" value={leverage} onChange={(event) => setLeverage(Number(event.target.value))} />
-            </label>
-            <label>
-              止盈
-              <input defaultValue="8%" />
-            </label>
-            <label>
-              止损
-              <input defaultValue="3%" />
-            </label>
-          </div>
-          <button className="primary full">{t.batch}</button>
-        </article>
+          </article>
+          <article>
+            <h3>{t.step3}</h3>
+            <div className="orderList">
+              {orderPreview.map((order) => (
+                <div className="orderRow" key={order.id}>
+                  <span>{order.id}</span>
+                  <strong>{order.symbol} {order.side}</strong>
+                  <em>{order.leverage}x</em>
+                  <b>{money(order.notional)}</b>
+                </div>
+              ))}
+              {!orderPreview.length && <p className="emptyState">Select at least one coin.</p>}
+            </div>
+            <button className="primary full">{t.generate}</button>
+          </article>
+        </div>
       </section>
 
-      <section className="orders">
-        <article className="panel">
-          <div className="panelTitle">
-            <div>
-              <span>{t.orders}</span>
-              <h2>实时委托状态</h2>
-            </div>
-            <button>一键撤销</button>
-          </div>
-          <div className="table">
-            {orders.map((order) => (
-              <div className="tr" key={order.id}>
-                <span>{order.id}</span>
-                <strong>{order.symbol} {order.side}</strong>
-                <span>{order.leverage}x</span>
-                <span>{order.size}</span>
-                <em>{order.status}</em>
-              </div>
-            ))}
-          </div>
-        </article>
-
-        <article className="panel">
-          <div className="panelTitle">
-            <div>
-              <span>{t.suggestion}</span>
-              <h2>策略与预警</h2>
-            </div>
-          </div>
-          <div className="insight">
-            <p>当前组合 BTC/ETH 权重稳定，SOL 波动贡献较高。若风险偏好为 balanced，建议将 SOL 目标权重控制在 12% 内，并为 BTC 设置突破提醒。</p>
-            <label>
-              BTC 价格阈值
-              <input value={alertPrice} onChange={(event) => setAlertPrice(event.target.value)} />
-            </label>
-            <div className="securityList">
-              <span>2FA 登录</span>
-              <span>API 密钥托管</span>
-              <span>TLS 传输</span>
-              <span>只读/交易权限分离</span>
-            </div>
-          </div>
-        </article>
+      <section className="note panel">
+        <span>{t.note}</span>
+        <p>{t.noteBody}</p>
       </section>
-
-      <Wireframes t={t} />
     </main>
   );
 }

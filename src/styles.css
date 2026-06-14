@@ -8,6 +8,7 @@
   --accent: #0071e3;
   --green: #16a46a;
   --red: #d94a4a;
+  --soft: #ededf0;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
@@ -38,13 +39,18 @@ button,
   border-radius: 999px;
   cursor: pointer;
   text-decoration: none;
-  transition: transform 180ms ease, background 180ms ease, color 180ms ease, border-color 180ms ease;
+  transition: transform 180ms ease, background 180ms ease, color 180ms ease, opacity 180ms ease;
 }
 
 button:hover,
 .primary:hover,
 .secondary:hover {
   transform: translateY(-1px);
+}
+
+button:disabled {
+  cursor: wait;
+  opacity: 0.62;
 }
 
 main {
@@ -60,12 +66,12 @@ main {
   align-items: center;
   gap: 24px;
   padding: 16px clamp(18px, 4vw, 56px);
-  background: rgba(245, 245, 247, 0.82);
+  background: rgba(245, 245, 247, 0.86);
   backdrop-filter: blur(18px);
   border-bottom: 1px solid rgba(217, 217, 222, 0.8);
 }
 
-.topbar > div:first-child,
+.brand,
 .topActions {
   display: flex;
   align-items: center;
@@ -76,10 +82,15 @@ main {
   justify-content: flex-end;
 }
 
+.brandDot,
+.coinMark {
+  display: inline-block;
+  border-radius: 50%;
+}
+
 .brandDot {
   width: 14px;
   height: 14px;
-  border-radius: 50%;
   background: #f0b90b;
   box-shadow: 0 0 0 5px rgba(240, 185, 11, 0.18);
 }
@@ -105,7 +116,7 @@ nav a {
   background: #e9f7ef;
   color: var(--green);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .source.demo {
@@ -124,14 +135,14 @@ nav a {
 .hero {
   min-height: calc(100vh - 72px);
   display: grid;
-  grid-template-columns: minmax(0, 0.88fr) minmax(320px, 1.12fr);
+  grid-template-columns: minmax(0, 0.9fr) minmax(320px, 1.1fr);
   align-items: center;
   gap: clamp(28px, 5vw, 82px);
   padding: clamp(36px, 6vw, 76px) clamp(18px, 5vw, 72px) 34px;
 }
 
 .heroCopy {
-  max-width: 700px;
+  max-width: 720px;
 }
 
 .eyebrow {
@@ -144,35 +155,48 @@ nav a {
 
 h1 {
   margin: 0;
-  font-size: clamp(46px, 6vw, 82px);
-  line-height: 0.98;
+  font-size: clamp(42px, 5.8vw, 78px);
+  line-height: 1;
   letter-spacing: 0;
 }
 
 .heroCopy p:not(.eyebrow) {
-  max-width: 620px;
+  max-width: 650px;
   margin: 24px 0 0;
   color: #4c4c50;
   font-size: 19px;
   line-height: 1.7;
 }
 
-.heroActions {
+.heroActions,
+.actionCluster {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
+}
+
+.heroActions {
   margin-top: 30px;
 }
 
 .primary,
 .secondary,
-.panelTitle button {
+.panelTitle button,
+.miniButton {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-height: 44px;
   padding: 0 20px;
   font-weight: 800;
+}
+
+.miniButton {
+  min-height: 34px;
+  margin-top: 10px;
+  padding: 0 14px;
+  background: #111111;
+  color: white;
 }
 
 .primary {
@@ -182,7 +206,7 @@ h1 {
 
 .secondary,
 .panelTitle button {
-  background: #ededf0;
+  background: var(--soft);
   color: #111111;
 }
 
@@ -192,7 +216,7 @@ h1 {
 
 .heroVisual {
   position: relative;
-  min-height: 510px;
+  min-height: 500px;
   border-radius: 8px;
   background:
     radial-gradient(circle at 50% 46%, rgba(0, 113, 227, 0.16), transparent 38%),
@@ -204,7 +228,7 @@ h1 {
 .pointCloud {
   width: 100%;
   height: 100%;
-  min-height: 510px;
+  min-height: 500px;
   display: block;
 }
 
@@ -215,16 +239,17 @@ h1 {
   padding: 18px 20px;
   border: 1px solid rgba(255, 255, 255, 0.7);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.74);
   backdrop-filter: blur(14px);
 }
 
 .floatingMetric span,
 .metrics span,
-.panelTitle span {
+.panelTitle span,
+.note span {
   color: var(--muted);
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .floatingMetric strong {
@@ -234,11 +259,12 @@ h1 {
 }
 
 .metrics,
+.priceSection,
 .dashboardGrid,
 .workbench,
-.orders,
-.wireframes {
-  padding: 0 clamp(18px, 5vw, 72px) 28px;
+.tradeSection,
+.note {
+  margin: 0 clamp(18px, 5vw, 72px) 28px;
 }
 
 .metrics {
@@ -249,7 +275,9 @@ h1 {
 
 .metrics article,
 .panel,
-.wireCard {
+.priceCard,
+.allocationCard,
+.tradeFlow > article {
   border: 1px solid rgba(217, 217, 222, 0.9);
   border-radius: 8px;
   background: var(--panel);
@@ -262,7 +290,7 @@ h1 {
 .metrics strong {
   display: block;
   margin-top: 8px;
-  font-size: 26px;
+  font-size: clamp(20px, 2.3vw, 28px);
 }
 
 .metrics small {
@@ -279,19 +307,9 @@ h1 {
   color: var(--red);
 }
 
-.dashboardGrid {
-  display: grid;
-  grid-template-columns: 1.05fr 0.95fr;
-  gap: 18px;
-}
-
 .panel {
   padding: clamp(18px, 3vw, 26px);
   overflow: hidden;
-}
-
-.wide {
-  grid-column: 1 / -1;
 }
 
 .panelTitle {
@@ -304,8 +322,63 @@ h1 {
 
 .panelTitle h2 {
   margin: 5px 0 0;
-  font-size: 24px;
+  font-size: 25px;
   letter-spacing: 0;
+}
+
+.panelTitle p {
+  max-width: 680px;
+  margin: 8px 0 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.priceGrid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.priceCard {
+  min-height: 170px;
+  padding: 16px;
+  display: grid;
+  align-content: space-between;
+  gap: 12px;
+}
+
+.priceCard > div {
+  display: grid;
+  grid-template-columns: 14px 1fr;
+  align-items: center;
+  gap: 8px;
+}
+
+.priceCard small {
+  grid-column: 2;
+  color: var(--muted);
+}
+
+.priceCard b {
+  display: block;
+  font-size: clamp(20px, 2.1vw, 30px);
+}
+
+.priceCard em,
+.priceCard span:last-child {
+  font-style: normal;
+  font-weight: 800;
+}
+
+.coinMark {
+  width: 12px;
+  height: 12px;
+}
+
+.dashboardGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 18px;
 }
 
 .allocationVisual {
@@ -339,34 +412,9 @@ h1 {
   border-radius: 50%;
 }
 
-.legend em,
-.table em {
+.legend em {
   color: var(--muted);
   font-style: normal;
-}
-
-.bars {
-  display: grid;
-  gap: 15px;
-}
-
-.barItem {
-  display: grid;
-  grid-template-columns: 44px 1fr auto;
-  align-items: center;
-  gap: 12px;
-}
-
-.barTrack {
-  height: 12px;
-  border-radius: 999px;
-  background: #f0f0f3;
-  overflow: hidden;
-}
-
-.barFill {
-  height: 100%;
-  border-radius: inherit;
 }
 
 .lineChart {
@@ -374,56 +422,73 @@ h1 {
   height: 280px;
 }
 
-.workbench,
-.orders {
+.allocationCards {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 18px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
 }
 
-.segmented,
+.allocationCard {
+  padding: 16px;
+}
+
+.coinHeader,
+.weightLine {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.coinHeader {
+  margin-bottom: 14px;
+}
+
+.coinHeader strong {
+  margin-right: auto;
+}
+
+.coinHeader em,
+.weightLine span,
+.allocationCard small {
+  font-style: normal;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.weightLine {
+  color: var(--muted);
+}
+
+.allocationCard input[type="range"] {
+  width: 100%;
+  margin: 16px 0 10px;
+}
+
+.allocationCard small {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.tradeFlow {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr 1.1fr;
+  gap: 14px;
+}
+
+.tradeFlow > article {
+  padding: 18px;
+}
+
+.tradeFlow h3 {
+  margin: 0 0 14px;
+  font-size: 17px;
+}
+
 .coinGrid {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-}
-
-.segmented button {
-  min-height: 34px;
-  padding: 0 12px;
-  background: #f0f0f3;
-  color: #555;
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.segmented .active {
-  background: #111111;
-  color: white;
-}
-
-.sliders {
-  display: grid;
-  gap: 16px;
-}
-
-.sliders label {
-  display: grid;
-  gap: 8px;
-}
-
-.sliders label span {
-  display: flex;
-  justify-content: space-between;
-}
-
-.sliders em {
-  color: var(--muted);
-  font-style: normal;
-}
-
-input[type="range"] {
-  width: 100%;
 }
 
 .coinGrid button {
@@ -432,7 +497,7 @@ input[type="range"] {
   gap: 8px;
   min-height: 42px;
   padding: 0 14px;
-  background: #f0f0f3;
+  background: var(--soft);
   color: #111111;
   font-weight: 800;
 }
@@ -444,15 +509,14 @@ input[type="range"] {
 
 .formGrid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
-  margin: 18px 0;
 }
 
 label {
   color: var(--muted);
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 select,
@@ -467,89 +531,53 @@ input:not([type="range"]) {
   color: var(--text);
 }
 
-.table {
+.orderList {
   display: grid;
   gap: 8px;
+  margin-bottom: 14px;
 }
 
-.tr {
+.orderRow {
   display: grid;
-  grid-template-columns: 1.4fr 1fr 0.5fr 0.8fr 0.7fr;
-  gap: 12px;
+  grid-template-columns: 0.7fr 1fr 0.5fr 0.8fr;
+  gap: 8px;
   align-items: center;
-  min-height: 46px;
+  min-height: 42px;
   border-radius: 8px;
-  padding: 0 12px;
+  padding: 0 10px;
   background: #f7f7f9;
   font-size: 14px;
 }
 
-.insight p {
-  margin: 0 0 18px;
-  color: #4c4c50;
-  line-height: 1.7;
-}
-
-.securityList {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 16px;
-}
-
-.securityList span {
-  border-radius: 999px;
-  padding: 8px 10px;
-  background: #f0f0f3;
-  color: #333;
-  font-size: 12px;
+.orderRow em {
+  color: var(--muted);
+  font-style: normal;
   font-weight: 800;
 }
 
-.wireframes {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
-  padding-bottom: 60px;
-}
-
-.wireCard {
-  padding: 16px;
-}
-
-.wireTop {
-  height: 38px;
-  border-radius: 8px;
-  background: #111111;
-}
-
-.wireBody {
-  display: grid;
-  grid-template-columns: 1fr 0.7fr;
-  grid-template-rows: 70px 42px;
-  gap: 8px;
-  margin: 10px 0 14px;
-}
-
-.wireBody div {
-  border-radius: 8px;
-  background: #ececf1;
-}
-
-.wireBody div:first-child {
-  grid-row: span 2;
-}
-
-.wireCard h3 {
-  margin: 0 0 6px;
-  font-size: 17px;
-}
-
-.wireCard p {
+.emptyState,
+.note p {
   margin: 0;
   color: var(--muted);
-  font-size: 13px;
-  line-height: 1.5;
+  line-height: 1.6;
+}
+
+.note {
+  margin-bottom: 60px;
+}
+
+.note p {
+  margin-top: 8px;
+}
+
+@media (max-width: 1180px) {
+  .priceGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .tradeFlow {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 980px) {
@@ -562,14 +590,12 @@ input:not([type="range"]) {
   }
 
   .hero,
-  .dashboardGrid,
-  .workbench,
-  .orders {
+  .dashboardGrid {
     grid-template-columns: 1fr;
   }
 
   .metrics,
-  .wireframes {
+  .allocationCards {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -584,23 +610,28 @@ input:not([type="range"]) {
   }
 
   h1 {
-    font-size: 42px;
+    font-size: 40px;
   }
 
   .heroVisual,
   .pointCloud {
-    min-height: 360px;
+    min-height: 350px;
   }
 
   .metrics,
-  .wireframes,
+  .priceGrid,
+  .allocationCards,
   .allocationVisual,
   .formGrid {
     grid-template-columns: 1fr;
   }
 
-  .tr {
+  .panelTitle {
+    flex-direction: column;
+  }
+
+  .orderRow {
     grid-template-columns: 1fr;
-    padding: 12px;
+    padding: 10px;
   }
 }
